@@ -189,19 +189,22 @@ getch endp
 posCurScreenP1 proc
 	push ebp
 	mov  ebp, esp
-
+	;Filas
     mov edx, 0
 	mov ebx,0
 	mov eax, [row]
-
-;	mov bl, [col]
-;	dec eax
-;	sub bl, 'A'
-
 	imul eax,2
 	mov ecx, [rowScreenIni]
 	add ecx,eax
 	mov [rowScreen],ecx
+
+
+
+
+	;Columnas
+	mov bl, [col]
+	dec eax
+	sub bl, 'A'
 
 	imul ebx,4
 	add edx,ebx
@@ -248,33 +251,34 @@ getMoveP1 proc
 			 ;sumar fila arr
 			 mov eax, [row]
 			 dec eax
-		     mov [row],eax
+		     mov [rowCur],eax
 			 JMP fin
 	continue1:  CMP AL, 'j'
 				JNE continue2
 				;sumar col izq
 				mov al, [col]
 				dec al
-				add eax,al
-				mov [colCur],eax
+				;add eax,al
+				mov [colCur],al
 				JMP fin
 	continue2:  CMP AL, 'k'
 				JNE continue3
 				;sumar fil ab
 				 mov eax, [row]
 				 inc eax
-				 mov [row],eax
+				 mov [rowCur],eax
 				JMP fin
 	continue3:  CMP AL, 'l'
 				JNE continue4
 				;sumar col der
 				mov al, [col]
 				inc al
-				add eax,al
-				 mov [colCur],eax
+				;add eax,al
+				mov [colCur],al
 				JMP fin
 	continue4:
 	fin:
+
 	
 
    mov esp, ebp
