@@ -189,6 +189,7 @@ getch endp
 posCurScreenP1 proc
 	push ebp
 	mov  ebp, esp
+
 	;Filas
     mov edx, 0
 	mov ebx,0
@@ -198,16 +199,13 @@ posCurScreenP1 proc
 	add ecx,eax
 	mov [rowScreen],ecx
 
-
-
-
 	;Columnas
 	mov bl, [col]
 	dec eax
 	sub bl, 'A'
 
 	imul ebx,4
-	add edx,ebx
+
 	mov edx, [colScreenIni]
 	add edx,ebx
 	mov [colScreen],edx
