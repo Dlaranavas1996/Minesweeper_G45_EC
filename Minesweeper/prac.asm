@@ -402,9 +402,18 @@ movContinuoP1 proc
 				JNE continue4
 				JMP setVars
 
-	continue4:	CMP AL, 's'
+	continue4:	CMP AL, 'm'
+				JNE continue5
+				JMP inici
+	continue5:	CMP AL, ' '
+				JNE continue6
+				call calcIndexP1
+				call printch
+				JMP inici
+	continue6:	CMP AL, 's'
 				JE fin
 				JMP inici
+	
 
 	setVars: 	call moveCursorP1
 				;col=colCur,row=rowCur
@@ -447,7 +456,21 @@ calcIndexP1 proc
 	push ebp
 	mov  ebp, esp
 	
+	;row * 8
+	mov eax,[row]
+	imul eax, 8
 
+	;col/'A', eax+col
+	mov bl, [col]
+	sub bl, 'A'
+	add eax,ebx
+
+	mov [indexMat], eax
+
+	mov ecx, 0
+	mov edx, 0
+	lea edx, mineField
+	mov cl, [edx+eax]
 
 	mov esp, ebp
 	pop ebp
@@ -495,6 +518,8 @@ openP1 proc
 	push ebp
 	mov  ebp, esp
 
+	call openP1
+	call printch
 
 	mov esp, ebp
 	pop ebp
