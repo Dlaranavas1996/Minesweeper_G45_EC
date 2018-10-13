@@ -194,6 +194,7 @@ posCurScreenP1 proc
     mov edx, 0
 	mov ebx,0
 	mov eax, [row]
+	dec eax
 	imul eax,2
 	mov ecx, [rowScreenIni]
 	add ecx,eax
@@ -201,7 +202,6 @@ posCurScreenP1 proc
 
 	;Columnas
 	mov bl, [col]
-	dec eax
 	sub bl, 'A'
 
 	imul ebx,4
@@ -241,42 +241,31 @@ getMoveP1 proc
 	mov eax, 0
 
 
-    call getch
+	inici:	call getch
 	mov al,[carac2]
 
-	iftecla: CMP AL,'i'
-			 JNE continue1
-			 ;sumar fila arr
-			 mov eax, [row]
-			 dec eax
-		     mov [rowCur],eax
-			 JMP fin
+	iftecla:	CMP AL,'i'
+				JNE continue1
+				JMP fin
 	continue1:  CMP AL, 'j'
 				JNE continue2
-				;sumar col izq
-				mov al, [col]
-				dec al
-				;add eax,al
-				mov [colCur],al
 				JMP fin
 	continue2:  CMP AL, 'k'
 				JNE continue3
-				;sumar fil ab
-				 mov eax, [row]
-				 inc eax
-				 mov [rowCur],eax
 				JMP fin
 	continue3:  CMP AL, 'l'
 				JNE continue4
-				;sumar col der
-				mov al, [col]
-				inc al
-				;add eax,al
-				mov [colCur],al
 				JMP fin
-	continue4:
+	continue4:	CMP AL, ' '
+				JNE continue5
+				JMP fin
+	continue5:	CMP AL, 'm'
+				JNE continue6
+				JMP fin
+	continue6:	CMP AL, 's'
+				JNE inici
+				JMP fin				
 	fin:
-
 	
 
    mov esp, ebp
@@ -310,6 +299,57 @@ moveCursorP1 proc
    push ebp
    mov  ebp, esp 
 
+	mov al,[carac2]
+
+	iftecla:	CMP AL,'i'
+				JNE continue1
+				;check que no se salga del tablero
+				mov eax, [row]
+				dec eax
+				CMP eax, 1
+				JL FIN
+			 
+				;sumar fila arr
+				mov [rowCur],eax
+				JMP fin
+	continue1:  CMP AL, 'j'
+				JNE continue2
+				;check que no se salga del tablero
+				mov al, [col]
+				dec al
+				CMP al, 'A'
+				JL FIN
+
+				;sumar col izq
+				;add eax,al
+				mov [colCur],al
+
+				JMP fin
+	continue2:  CMP AL, 'k'
+				JNE continue3
+				;check que no se salga del tablero
+				mov eax, [row]
+				inc eax
+				CMP eax, 8
+				JG FIN
+
+				;sumar fil ab
+				 mov [rowCur],eax
+				JMP fin
+	continue3:  CMP AL, 'l'
+				JNE continue4
+				;check que no se salga del tablero
+				mov al, [col]
+				inc al
+				CMP al, 'H'
+				JG FIN
+
+				;sumar col der
+				;add eax,al
+				mov [colCur],al
+				JMP fin
+	continue4:
+	fin:
 
    mov esp, ebp
    pop ebp
@@ -337,6 +377,49 @@ movContinuoP1 proc
 	push ebp
 	mov  ebp, esp
 
+	inici: call getch
+	mov al,[carac2]
+
+	iftecla: CMP AL,'i'
+			 JNE continue1
+
+			 JMP setVars
+
+			 JMP inici
+	continue1:  CMP AL, 'j'
+				JNE continue2
+
+				JMP setVars
+
+				JMP inici
+	continue2:  CMP AL, 'k'
+				JNE continue3
+
+				JMP setVars
+
+				JMP inici
+	continue3:  CMP AL, 'l'
+				JNE continue4
+				JMP setVars
+
+	continue4:	CMP AL, 's'
+				JE fin
+				JMP inici
+
+	setVars: 	call moveCursorP1
+				;col=colCur,row=rowCur
+				mov eax, [rowCur]
+				mov [row],eax
+				mov al, [colCur]
+				mov [col],al
+				call posCurScreenP1
+				JMP inici
+
+	fin:
+
+	;row = rowCur;
+	;col = colCur;
+	;posCurScreenP1();
 
 	mov esp, ebp
 	pop ebp
