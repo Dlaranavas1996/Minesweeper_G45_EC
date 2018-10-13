@@ -467,10 +467,10 @@ calcIndexP1 proc
 
 	mov [indexMat], eax
 
-	mov ecx, 0
-	mov edx, 0
-	lea edx, mineField
-	mov cl, [edx+eax]
+	;Trata de sacar el valor del array2d mineField pero no funciona aun.. XD
+	;mov ecx, 0
+	;lea edx, [mineField]
+	;mov cl, [edx+eax]
 
 	mov esp, ebp
 	pop ebp
