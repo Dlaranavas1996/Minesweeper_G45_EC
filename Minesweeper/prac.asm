@@ -532,7 +532,9 @@ openP1 proc
 			JNE continue2
 				;Marcar X
 			mov [carac], 'X'
-
+			mov edx, [endgame]
+			dec edx
+			mov [endgame], edx
 			JMP fin
 			continue2:
 			;Marcar agüita 
@@ -544,10 +546,16 @@ openP1 proc
 		CMP bl, 'm'
 		JNE fin
 			;Marcar
+			CMP cl , 'm'
+			JNE continueM
+			mov [carac], ' '
 			
+			JMP fin
+			continueM:
 			mov [carac], 'm'
-
+		
 	fin:
+	;mov [mineField+eax], bl
 	call printch
 	call posCurScreenP1
 	mov esp, ebp
