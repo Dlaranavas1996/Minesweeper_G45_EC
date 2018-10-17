@@ -402,20 +402,20 @@ movContinuoP1 proc
 				JNE continue4
 				JMP setVars
 
-	continue4:	CMP AL, 'M'
+	continue4:	CMP AL, 'm'
 				JNE continue5
 				
-				call openP1
-
-				JMP inici
+				;call openP1
+				JMP fin
+			
 	continue5:	CMP AL, ' '
 				JNE continue6
-				call openP1
+				;call openP1
 			
-				JMP inici
-	continue6:	CMP AL, 'S'
+				JMP fin
+	continue6:	CMP AL, 's'
 				JE fin
-				JMP inici
+			
 	
 
 	setVars: 	call moveCursorP1
@@ -429,9 +429,6 @@ movContinuoP1 proc
 
 	fin:
 
-	;row = rowCur;
-	;col = colCur;
-	;posCurScreenP1();
 
 	mov esp, ebp
 	pop ebp
@@ -544,11 +541,11 @@ openP1 proc
 			JMP fin
 		JMP fin
 	continue1:
-		CMP bl, 'M'
+		CMP bl, 'm'
 		JNE fin
 			;Marcar
 			
-			mov [carac], 'M'
+			mov [carac], 'm'
 
 	fin:
 	call printch
@@ -584,6 +581,20 @@ openContinuousP1 proc
 	mov  ebp, esp
 
 
+	inici: 
+	mov cl, [carac2]
+	mov ebx, [endgame]
+	CMP cl,'s'
+	JNE continue1
+	JMP fin
+	continue1:
+	CMP ebx, 0
+	JNE fin
+
+	call movContinuoP1
+	call openP1
+	JMP inici
+	fin:
 	mov esp, ebp
 	pop ebp
 	ret
