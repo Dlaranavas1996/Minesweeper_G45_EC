@@ -237,7 +237,7 @@ posCurScreenP1 endp
 getMoveP1 proc
    push ebp
    mov  ebp, esp
-    
+    	;Comprovacion caracter
 	mov eax, 0
 
 
@@ -402,15 +402,18 @@ movContinuoP1 proc
 				JNE continue4
 				JMP setVars
 
-	continue4:	CMP AL, 'm'
+	continue4:	CMP AL, 'M'
 				JNE continue5
+				
+				call openP1
+
 				JMP inici
 	continue5:	CMP AL, ' '
 				JNE continue6
-				call calcIndexP1
-				call printch
+				call openP1
+			
 				JMP inici
-	continue6:	CMP AL, 's'
+	continue6:	CMP AL, 'S'
 				JE fin
 				JMP inici
 	
@@ -457,19 +460,20 @@ calcIndexP1 proc
 	mov  ebp, esp
 	
 	;row * 8
+
 	mov eax,[row]
+	dec eax
 	imul eax, 8
 
 	;col/'A', eax+col
 	mov bl, [col]
 	sub bl, 'A'
 	add eax,ebx
-
 	mov [indexMat], eax
 
-	;Trata de sacar el valor del array2d mineField pero no funciona aun.. XD
-	;mov ecx, 0
-	;lea edx, [mineField]
+
+	
+
 	;mov cl, [edx+eax]
 
 	mov esp, ebp
@@ -518,9 +522,37 @@ openP1 proc
 	push ebp
 	mov  ebp, esp
 
-	call openP1
-	call printch
+	call calcIndexP1
+	mov ecx, 0
+	mov eax, [indexMat]
+	mov cl , [mineField+eax]
 
+	mov bl, [carac2]
+	CMP bl, ' '
+		JNE continue1
+		;Comparar si es bomba
+			CMP cl, 1
+			JNE continue2
+				;Marcar X
+			mov [carac], 'X'
+
+			JMP fin
+			continue2:
+			;Marcar agüita 
+				mov [carac], '~'
+
+			JMP fin
+		JMP fin
+	continue1:
+		CMP bl, 'M'
+		JNE fin
+			;Marcar
+			
+			mov [carac], 'M'
+
+	fin:
+	call printch
+	call posCurScreenP1
 	mov esp, ebp
 	pop ebp
 	ret
