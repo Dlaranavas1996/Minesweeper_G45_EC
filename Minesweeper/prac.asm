@@ -523,7 +523,7 @@ openP1 proc
 	mov ecx, 0
 	mov eax, [indexMat]
 	mov cl , [mineField+eax]
-
+	mov dl, [taulell+eax]
 	mov bl, [carac2]
 	CMP bl, ' '
 		JNE continue1
@@ -546,15 +546,17 @@ openP1 proc
 		CMP bl, 'm'
 		JNE fin
 			;Marcar
-			CMP cl , 'm'
+			CMP dl , 'm'
 			JNE continueM
 			mov [carac], ' '
-			
+		
 			JMP fin
 			continueM:
 			mov [carac], 'm'
-		
+			call updateMarks
 	fin:
+	mov dl, [carac]
+	mov [taulell+eax], dl
 	;mov [mineField+eax], bl
 	call printch
 	call posCurScreenP1
@@ -630,6 +632,18 @@ openContinuousP1 endp
 updateMarks proc
 	push ebp
 	mov  ebp, esp
+	mov cl, [carac]
+	CMP cl, 'M'
+	JNE continue1
+	mov al, [marks]
+	dec al
+	mov [marks], al
+	JMP fin
+	continue1
+	mov al, [marks]
+	inc al
+	mov [marks], al
+	fin:
 
 
 	mov esp, ebp
