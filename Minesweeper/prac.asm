@@ -88,7 +88,7 @@ gotoxy endp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Mostrar un caràcter, guardat a la variable carac
-; en la pantalla en la posició on està  el cursor,  
+; en la pantalla en la posició on està  el cursor,  
 ; cridant a la funció printChar_C.
 ; 
 ; Variables utilitzades: 
@@ -189,6 +189,9 @@ getch endp
 posCurScreenP1 proc
 	push ebp
 	mov  ebp, esp
+	;push tot reg
+	push_all
+
 
 	;Filas
     mov edx, 0
@@ -212,6 +215,9 @@ posCurScreenP1 proc
 	
 	call gotoxy
 
+
+	;pop tot reg
+	pop_all
 	mov esp, ebp
 	pop ebp
 	ret
@@ -225,7 +231,7 @@ posCurScreenP1 endp
 ; 
 ; Variables utilitzades: 
 ; carac2 : Variable on s'emmagatzema el caràcter llegit
-; op: Variable que indica en quina opció del menú principal estem
+; opc: Variable que indica en quina opció del menú principal estem
 ; 
 ; Paràmetres d'entrada : 
 ; Cap
@@ -312,6 +318,7 @@ moveCursorP1 proc
 				;sumar fila arr
 				mov [rowCur],eax
 				JMP fin
+
 	continue1:  CMP AL, 'j'
 				JNE continue2
 				;check que no se salga del tablero
@@ -323,8 +330,8 @@ moveCursorP1 proc
 				;sumar col izq
 				;add eax,al
 				mov [colCur],al
-
 				JMP fin
+
 	continue2:  CMP AL, 'k'
 				JNE continue3
 				;check que no se salga del tablero
@@ -336,6 +343,7 @@ moveCursorP1 proc
 				;sumar fil ab
 				 mov [rowCur],eax
 				JMP fin
+
 	continue3:  CMP AL, 'l'
 				JNE continue4
 				;check que no se salga del tablero
@@ -382,10 +390,9 @@ movContinuoP1 proc
 
 	iftecla: CMP AL,'i'
 			 JNE continue1
-
 			 JMP setVars
-
 			 JMP inici
+
 	continue1:  CMP AL, 'j'
 				JNE continue2
 
@@ -394,7 +401,6 @@ movContinuoP1 proc
 				JMP inici
 	continue2:  CMP AL, 'k'
 				JNE continue3
-
 				JMP setVars
 
 				JMP inici
@@ -541,29 +547,51 @@ openP1 proc
 			mov [endgame], edx
 			JMP fin
 			continue2:
-			;Marcar agüita 
-				;mov [carac], '~'
+			;Marcar agüita
+			mov [carac], '~'
 			call sumNeighbours
+			push_all
+			call updateMarks
+			pop_all				
 			JMP fin
 		JMP fin
 	continue1:
 		CMP bl, 'm'
 		JNE fin
 			;Marcar
+			CMP dl, '~'
+			JNE continueSpace
+			mov [carac], '~'
+			JMP fin
+
+			continueSpace:
+			mov edi, [marks]
 			CMP dl , 'm'
 			JNE continueM
 			mov [carac], ' '
-		
+			push_all
+			call updateMarks
+			pop_all		
 			JMP fin
+
 			continueM:
 			mov [carac], 'm'
+			CMP edi, 0
+			JE resetVars
+			push_all
 			call updateMarks
+			pop_all
+			JMP fin
+
+	resetVars:
+	mov [carac], ' '
+
 	fin:
 	mov dl, [carac]
 	mov [taulell+eax], dl
 	;mov [mineField+eax], bl
-	call printch
 	call posCurScreenP1
+	call printch
 	mov esp, ebp
 	pop ebp
 	ret
@@ -593,7 +621,6 @@ openP1 endp
 openContinuousP1 proc
 	push ebp
 	mov  ebp, esp
-
 
 	inici: 
 	mov cl, [carac2]
@@ -636,19 +663,51 @@ openContinuousP1 endp
 updateMarks proc
 	push ebp
 	mov  ebp, esp
-	;mov cl, [carac]
-	;CMP cl, 'M'
-	;JNE continue1
-	;mov al, [marks]
-	;dec al
-	;mov [marks], al
-	;JMP fin
-	;continue1
-	;mov al, [marks]
-	;inc al
-	;mov [marks], al
-	;fin:
 
+	mov edx, 0
+	mov dl, [carac]
+
+	mov edi, 0
+	mov dh, [carac2]
+	CMP dh, '~'
+	JE fin
+
+	mov esi, 0
+	mov bl, [col]
+	mov ecx, [row]
+	mov eax, [marks]
+	mov edi, [indexMat]
+	mov dh, [taulell+edi]
+
+	CMP dh, 'm'
+		JNE check2
+		add eax, 1
+		JMP continue
+	check2:
+	CMP dh, ' '
+		JNE continue
+		mov edi, 0
+		mov bh, [carac2]
+		CMP bh, 'm'
+		JNE continue
+		dec eax
+
+
+	continue:
+
+	mov [col], 'H'
+	mov [row], -1
+	call posCurScreenP1
+	add eax, 48
+	mov [carac], al
+	call printch 
+
+	mov [carac], dl
+	mov [col], bl
+	mov [row], ecx
+	sub eax, 48
+	mov [marks], eax
+	fin:
 
 	mov esp, ebp
 	pop ebp
