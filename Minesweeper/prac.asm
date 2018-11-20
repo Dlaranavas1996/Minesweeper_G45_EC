@@ -457,7 +457,9 @@ calcIndexP1 proc
 	mov  ebp, esp
 	
 	;row * 8
-
+	push eax
+	push ebx
+	
 	mov eax,[row]
 	dec eax
 	imul eax, 8
@@ -472,6 +474,8 @@ calcIndexP1 proc
 	
 
 	;mov cl, [edx+eax]
+	pop ebx
+	pop eax
 
 	mov esp, ebp
 	pop ebp
@@ -538,8 +542,8 @@ openP1 proc
 			JMP fin
 			continue2:
 			;Marcar agüita 
-				mov [carac], '~'
-
+				;mov [carac], '~'
+			call sumNeighbours
 			JMP fin
 		JMP fin
 	continue1:
@@ -632,18 +636,18 @@ openContinuousP1 endp
 updateMarks proc
 	push ebp
 	mov  ebp, esp
-	mov cl, [carac]
-	CMP cl, 'M'
-	JNE continue1
-	mov al, [marks]
-	dec al
-	mov [marks], al
-	JMP fin
-	continue1
-	mov al, [marks]
-	inc al
-	mov [marks], al
-	fin:
+	;mov cl, [carac]
+	;CMP cl, 'M'
+	;JNE continue1
+	;mov al, [marks]
+	;dec al
+	;mov [marks], al
+	;JMP fin
+	;continue1
+	;mov al, [marks]
+	;inc al
+	;mov [marks], al
+	;fin:
 
 
 	mov esp, ebp
@@ -676,7 +680,69 @@ sumNeighbours proc
 	push ebp
 	mov  ebp, esp
 
+	push eax
+	push ebx
+	push ecx
+	push edx
 
+	mov eax, [rowCur]
+	inc eax
+	mov [rowCur], eax
+	mov bl, [colCur]
+	inc bl
+	mov [colCur], bl
+	sub eax, 2
+	sub bl, 2
+	
+	mov cl, '0'
+
+	bucle:
+	CMP eax, 0
+	JL incRow
+	CMP bl, 0
+	JL incCol
+	CMP eax, 7
+	JG incRow
+	CMP bl, 72
+	JG incCol
+	mov [row], eax
+	mov [col], bl
+	call calcIndexP1
+	mov edx, [indexMat]
+	mov ch, [mineField+edx]
+	CMP ch, 1
+	JNE incCol
+	inc cl
+	JMP incCol
+
+	incRow:
+	sub bl, 2
+	CMP eax, [rowCur]
+	JE fiBucle
+	inc al
+	JMP bucle
+
+	incCol:
+	CMP bl, [colCur]
+	JE incRow
+	inc bl
+	JMP bucle
+
+	fiBucle:
+	mov [carac],cl
+	mov eax, [rowCur]
+	dec eax
+	mov [rowCur], eax
+	mov [row], eax
+	mov bl, [colCur]
+	dec bl
+	mov [colCur], bl
+	mov [col], bl
+
+
+	pop ecx
+	pop ebx
+	pop eax
 
 	mov esp, ebp
 	pop ebp
