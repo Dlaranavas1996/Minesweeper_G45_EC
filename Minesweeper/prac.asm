@@ -559,9 +559,9 @@ openP1 proc
 			call updateMarks
 			JMP fin
 			compareSpace:
-			CMP dl, ' '
-			JNE fin
-			call updateMarks			
+			;CMP dl, ' '
+			;JE fin
+			;call updateMarks			
 			JMP fin
 	continue1:
 		CMP bl, 'm'
@@ -786,7 +786,7 @@ sumNeighbours proc
 	JL incCol
 	CMP eax, 8
 	JG incRow
-	CMP bl, 72
+	CMP bl, 'H'
 	JG incCol
 	mov [row], eax
 	mov [col], bl
