@@ -546,22 +546,34 @@ openP1 proc
 			dec edx
 			mov [endgame], edx
 			JMP fin
+			
 			continue2:
 			;Marcar agüita
-			mov [carac], '~'
+			;mov [carac], '~'
 			call sumNeighbours
-			push_all
+
+			;mov edi, 0
+			;mov dh, [carac]
+			CMP dl, 'm'
+			JNE compareSpace
 			call updateMarks
-			pop_all				
 			JMP fin
-		JMP fin
+			compareSpace:
+			CMP dl, ' '
+			JNE fin
+			call updateMarks			
+			JMP fin
 	continue1:
 		CMP bl, 'm'
 		JNE fin
 			;Marcar
-			CMP dl, '~'
-			JNE continueSpace
-			mov [carac], '~'
+			CMP dl, '8'
+			JNLE continueSpace
+			
+			CMP dl, '0'
+			JNGE continueSpace
+
+			mov [carac], dl
 			JMP fin
 
 			continueSpace:
@@ -569,18 +581,14 @@ openP1 proc
 			CMP dl , 'm'
 			JNE continueM
 			mov [carac], ' '
-			push_all
 			call updateMarks
-			pop_all		
 			JMP fin
 
 			continueM:
 			mov [carac], 'm'
 			CMP edi, 0
 			JE resetVars
-			push_all
 			call updateMarks
-			pop_all
 			JMP fin
 
 	resetVars:
@@ -664,13 +672,12 @@ updateMarks proc
 	push ebp
 	mov  ebp, esp
 
+	Push_all
 	mov edx, 0
 	mov dl, [carac]
 
 	mov edi, 0
 	mov dh, [carac2]
-	CMP dh, '~'
-	JE fin
 
 	mov esi, 0
 	mov bl, [col]
@@ -679,29 +686,48 @@ updateMarks proc
 	mov edi, [indexMat]
 	mov dh, [taulell+edi]
 
-	CMP dh, 'm'
-		JNE check2
-		add eax, 1
-		JMP continue
-	check2:
-	CMP dh, ' '
+ 	CMP dh, ' '
 		JNE continue
-		mov edi, 0
-		mov bh, [carac2]
-		CMP bh, 'm'
-		JNE continue
+		CMP dl, 'm'
+		JNE continue1
 		dec eax
+		JMP continue2
 
+	continue1:
+		CMP dl, ' '
+		JE continue2
+		inc eax
+		JMP continue2
 
 	continue:
+	CMP dh, 'm'
+		JNE continue2
+		CMP dl, ' '
+		JNE compara0
+		inc eax
+		JMP continue2
+		compara0:
+		cmp dl, 'm'
+		JE continue2
+		inc eax
+		JMP continue2
 
+
+		;mov edi, 0
+		;mov bh, [carac2]
+		;CMP bh, 'm'
+		;JNE continue2
+		;dec eax
+
+
+	continue2:
+	;No tocar plsx
 	mov [col], 'H'
 	mov [row], -1
 	call posCurScreenP1
 	add eax, 48
 	mov [carac], al
 	call printch 
-
 	mov [carac], dl
 	mov [col], bl
 	mov [row], ecx
@@ -709,6 +735,7 @@ updateMarks proc
 	mov [marks], eax
 	fin:
 
+	Pop_all
 	mov esp, ebp
 	pop ebp
 	ret
@@ -739,10 +766,7 @@ sumNeighbours proc
 	push ebp
 	mov  ebp, esp
 
-	push eax
-	push ebx
-	push ecx
-	push edx
+	Push_all
 
 	mov eax, [rowCur]
 	inc eax
@@ -760,7 +784,7 @@ sumNeighbours proc
 	JL incRow
 	CMP bl, 0
 	JL incCol
-	CMP eax, 7
+	CMP eax, 8
 	JG incRow
 	CMP bl, 72
 	JG incCol
@@ -799,9 +823,7 @@ sumNeighbours proc
 	mov [col], bl
 
 
-	pop ecx
-	pop ebx
-	pop eax
+	Pop_all
 
 	mov esp, ebp
 	pop ebp
