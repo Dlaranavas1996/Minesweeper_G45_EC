@@ -529,6 +529,8 @@ openP1 proc
 	push ebp
 	mov  ebp, esp
 
+	Push_all
+
 	call calcIndexP1
 	mov ecx, 0
 	mov eax, [indexMat]
@@ -600,6 +602,23 @@ openP1 proc
 	;mov [mineField+eax], bl
 	call posCurScreenP1
 	call printch
+
+	CMP [carac], '0'
+	JNE final
+	mov eax, [rowCur]
+	mov bl, [colCur]
+	call openBorders
+	mov [rowCur], eax
+	mov [row], eax
+	mov [colCur], bl
+	mov [col], bl
+	JMP final
+
+	final:
+	call checkWin
+	call posCurScreenP1
+	Pop_all
+
 	mov esp, ebp
 	pop ebp
 	ret
@@ -630,6 +649,8 @@ openContinuousP1 proc
 	push ebp
 	mov  ebp, esp
 
+	Push_all
+
 	inici: 
 	mov cl, [carac2]
 	mov ebx, [endgame]
@@ -644,6 +665,7 @@ openContinuousP1 proc
 	call openP1
 	JMP inici
 	fin:
+	Pop_all
 	mov esp, ebp
 	pop ebp
 	ret
@@ -799,6 +821,7 @@ sumNeighbours proc
 	JMP incCol
 
 	incRow:
+	;mov [colCur], bl
 	sub bl, 2
 	CMP eax, [rowCur]
 	JE fiBucle
@@ -853,7 +876,27 @@ checkWin proc
 	push ebp
 	mov  ebp, esp
 
+	Push_all
+
+	mov eax, 0
 	
+	bucle:
+	mov bl, [taulell+eax]
+	CMP bl, ' '
+	JE final2
+	inc eax
+	CMP eax, 63
+	JE final1
+	JMP bucle
+
+
+	final1:
+	mov [endGame], 1
+	JMP final2
+
+	final2:
+
+	Pop_all
 
 	mov esp, ebp
 	pop ebp
@@ -887,7 +930,56 @@ openBorders proc
 	push ebp
 	mov  ebp, esp
 
+	Push_all
 
+	mov eax, [rowCur]
+	mov ebx, eax
+	dec eax
+	inc ebx
+	mov cl, [colCur]
+	mov ch, cl
+	dec cl
+	inc ch
+
+	bucle:
+	CMP cl, 'A'
+	JL incCol
+	CMP cl, 'H'
+	JG incRow
+	CMP eax, 1
+	JL incRow
+	CMP eax, 8
+	JG incRow
+	mov [rowCur], eax
+	mov [colCur], cl
+	mov [row], eax
+	mov [col], cl
+	call calcIndexP1
+	mov edx, [indexMat]
+	mov dl, [taulell+edx]
+	cmp dl, '0'
+	JE incCol
+	call openP1
+	JMP incCol
+
+	incRow:
+	mov cl, ch
+	sub cl, 2
+	cmp eax, ebx
+	JE final
+	inc eax
+	JMP bucle
+
+	incCol:
+	CMP cl, ch
+	JE incRow
+	inc cl
+	JMP bucle
+
+	final:
+
+
+	Pop_all
 
 	mov esp, ebp
 	pop ebp
