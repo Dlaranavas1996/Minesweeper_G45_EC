@@ -304,6 +304,7 @@ getMoveP1 endp
 moveCursorP1 proc
    push ebp
    mov  ebp, esp 
+   push_all
 
 	mov al,[carac2]
 
@@ -358,7 +359,7 @@ moveCursorP1 proc
 				JMP fin
 	continue4:
 	fin:
-
+	pop_all
    mov esp, ebp
    pop ebp
    ret
@@ -463,14 +464,14 @@ calcIndexP1 proc
 	mov  ebp, esp
 	
 	;row * 8
-	push eax
-	push ebx
+	Push_all
 	
 	mov eax,[row]
 	dec eax
 	imul eax, 8
 
 	;col/'A', eax+col
+	mov ebx, 0
 	mov bl, [col]
 	sub bl, 'A'
 	add eax,ebx
@@ -480,8 +481,7 @@ calcIndexP1 proc
 	
 
 	;mov cl, [edx+eax]
-	pop ebx
-	pop eax
+	Pop_all
 
 	mov esp, ebp
 	pop ebp
